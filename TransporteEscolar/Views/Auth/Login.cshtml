@@ -1,0 +1,139 @@
+﻿@model TransporteEscolar.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null; // Vista autónoma sin layout principal
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGT — Iniciar Sesión</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+</head>
+<body>
+    <div class="login-bg">
+        <div class="login-card">
+
+            <!-- Logo / Cabecera -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <img src="~/images/logo.png"
+                         alt="Logo Transporte Escolar"
+                         style="width:390px; height:160px; object-fit:contain;" />
+                </div>
+                
+            </div>
+
+            <!-- Mensajes de error globales -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-error" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                              clip-rule="evenodd" />
+                    </svg>
+                    <span>
+                        @foreach (var error in ViewData.ModelState
+                                            .Where(x => x.Key == string.Empty)
+                                            .SelectMany(x => x.Value!.Errors))
+                        {
+                            @error.ErrorMessage
+                        }
+                    </span>
+                </div>
+            }
+
+            <!-- Formulario -->
+            <form asp-action="Login" asp-controller="Auth" method="post" id="loginForm" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="@Model.RememberMe" value="false" />
+
+                <!-- Selector de Rol -->
+                @*Eliminado por sugerencia, se detectará automáticamente en el backend*@
+
+                <!-- Usuario -->
+                <div class="form-group">
+                    <label asp-for="NombreUsuario" class="form-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                        Usuario
+                    </label>
+                    <div class="input-wrapper">
+                        <input asp-for="NombreUsuario"
+                               class="form-input"
+                               placeholder="Ingresa tu usuario"
+                               autocomplete="username"
+                               spellcheck="false" />
+                    </div>
+                    <span asp-validation-for="NombreUsuario" class="field-error"></span>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                        Contraseña
+                    </label>
+                    <div class="input-wrapper input-password">
+                        <input asp-for="Password"
+                               class="form-input"
+                               placeholder="Ingresa tu contraseña"
+                               autocomplete="current-password"
+                               id="passwordInput" />
+                        <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="Mostrar/ocultar contraseña">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                <path fill-rule="evenodd"
+                                      d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                      clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+
+               
+
+                <!-- Recordar sesión -->
+                <div class="form-check">
+                    <input asp-for="RememberMe" type="checkbox" class="form-checkbox" id="rememberMe" />
+                    <label for="rememberMe" class="check-label">Mantener sesión iniciada</label>
+                </div>
+
+                <!-- Botón Submit -->
+                <button type="submit" class="btn-login" id="btnLogin">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <span class="btn-loader" style="display:none;">
+                        <svg class="spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Verificando...
+                    </span>
+                </button>
+            </form>
+
+            <p class="login-footer">
+                Sistema de Gestión de Transporte Escolar &copy; @DateTime.Now.Year
+            </p>
+        </div>
+    </div>
+
+    <script src="~/js/login.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

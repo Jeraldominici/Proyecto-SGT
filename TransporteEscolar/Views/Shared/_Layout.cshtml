@@ -1,0 +1,477 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SGT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="icon" type="image/png" href="~/images/logo.png" />
+    <link rel="shortcut icon" type="image/png" href="~/images/logo.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/css/login.css" />
+    <style>
+
+        /* ── RESET GLOBAL ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F1F5F9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ══════════════════════════════════════
+                   NAVBAR
+                ══════════════════════════════════════ */
+        .navbar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 64px;
+            background: #0F172A;
+            border-bottom: 1px solid #1E293B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        /* — Marca — */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand-icon {
+            width: 38px;
+            height: 38px;
+            background: #2563EB;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand-texts {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .navbar-brand-name {
+            font-size: .9375rem;
+            font-weight: 700;
+            color: #F8FAFC;
+        }
+
+        .navbar-brand-sub {
+            font-size: .7rem;
+            color: #475569;
+            font-weight: 400;
+        }
+
+        /* — Lado derecho — */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            flex-shrink: 0;
+        }
+
+        /* — Divisor — */
+        .nav-sep {
+            width: 1px;
+            height: 24px;
+            background: #1E293B;
+            flex-shrink: 0;
+        }
+
+        /* — Badge de rol — */
+        .nav-badge {
+            font-size: .6875rem;
+            font-weight: 700;
+            padding: .25rem .65rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+
+        .badge-admin {
+            background: #1E3A8A;
+            color: #93C5FD;
+        }
+
+        .badge-azafata {
+            background: #0C4A6E;
+            color: #7DD3FC;
+        }
+
+        .badge-padre {
+            background: #14532D;
+            color: #86EFAC;
+        }
+
+        /* — Usuario — */
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .nav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #7C3AED);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            border: 2px solid #1E293B;
+        }
+
+        .nav-user-texts {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .nav-user-name {
+            font-size: .875rem;
+            font-weight: 600;
+            color: #F1F5F9;
+            white-space: nowrap;
+        }
+
+        .nav-user-sub {
+            font-size: .6875rem;
+            color: #475569;
+        }
+
+        /* — Botón cerrar sesión — */
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .45rem 1rem;
+            background: transparent;
+            border: 1.5px solid #334155;
+            border-radius: 7px;
+            color: #94A3B8;
+            font-size: .8125rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all .18s ease;
+            white-space: nowrap;
+        }
+
+            .btn-logout svg {
+                width: 15px;
+                height: 15px;
+                flex-shrink: 0;
+            }
+
+            .btn-logout:hover {
+                background: rgba(127,29,29,.4);
+                border-color: #991B1B;
+                color: #FCA5A5;
+            }
+
+        /* ══════════════════════════════════════
+                   CONTENIDO PRINCIPAL
+                ══════════════════════════════════════ */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ══════════════════════════════════════
+                   DASHBOARDS
+                ══════════════════════════════════════ */
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.75rem 2rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #1D4ED8, #4F46E5);
+        }
+
+        .azafata-header {
+            background: linear-gradient(135deg, #0369A1, #0891B2);
+        }
+
+        .padre-header {
+            background: linear-gradient(135deg, #15803D, #16A34A);
+        }
+
+        .dash-icon {
+            font-size: 2.75rem;
+            flex-shrink: 0;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .dashboard-header p {
+            font-size: .9rem;
+            opacity: .85;
+            margin-top: .2rem;
+        }
+
+        .dash-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .dash-card {
+            background: #fff;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1.35rem 1.25rem;
+            font-weight: 500;
+            font-size: .9375rem;
+            color: #334155;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+
+            .dash-card:hover {
+                border-color: #2563EB;
+                box-shadow: 0 4px 16px rgba(37,99,235,.1);
+                transform: translateY(-2px);
+            }
+
+        /* ══════════════════════════════════════
+                   RESPONSIVE
+                ══════════════════════════════════════ */
+        @@media (max-width: 640px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .nav-user-texts {
+                display: none;
+            }
+
+            .nav-badge {
+                display: none;
+            }
+
+            .navbar-brand-sub {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var nombreCompleto = User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "Usuario";
+        var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+
+        var partes = nombreCompleto.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var iniciales = partes.Length >= 2
+        ? $"{partes[0][0]}{partes[1][0]}"
+        : nombreCompleto.Length >= 2 ? nombreCompleto[..2] : nombreCompleto;
+
+        var fotoUrl = User.FindFirst("FotoUrl")?.Value;
+
+        var badgeClass = rol switch
+        {
+            "Admin" => "badge-admin",
+            "Azafata" => "badge-azafata",
+            "Padre" => "badge-padre",
+            _ => "badge-admin"
+        };
+
+        var rolIcono = rol switch
+        {
+            "Admin" => "🛡️",
+            "Azafata" => "🚌",
+            "Padre" => "👨‍👧",
+            _ => "👤"
+        };
+
+        <nav class="navbar">
+
+            @*{{!-- Marca --}}*@
+            @{
+                var dashUrl = rol switch
+                {
+                    "Admin" => Url.Action("Dashboard", "Admin"),
+                    "Azafata" => Url.Action("Dashboard", "Azafata"),
+                    "Padre" => Url.Action("Dashboard", "Padre"),
+                    _ => "/"
+                };
+            }
+            <a class="navbar-brand" href="@dashUrl">
+                <div class="navbar-brand-icon">
+                    <img src="~/images/logo.png"
+                         alt="Logo Transporte Escolar"
+                         style="width:30px; height:30px; object-fit:contain; border-radius:6px;" />
+                </div>
+                <div class="navbar-brand-texts">
+                    <span class="navbar-brand-name">Transporte Escolar</span>
+                    <span class="navbar-brand-sub">Sistema de Gestión</span>
+                </div>
+            </a>
+            @if (User.IsInRole("Padre"))
+            {
+                <a asp-action="Index" asp-controller="Notificacion"
+                   style="position:relative; display:flex; align-items:center; justify-content:center;
+                      width:36px; height:36px; border-radius:50%; background:#F1F5F9;
+                      color:#64748B; text-decoration:none; transition:.15s; margin-right:.5rem;"
+                   onmouseover="this.style.background='#E2E8F0';"
+                   onmouseout="this.style.background='#F1F5F9';"
+                   id="btnCampana">
+                    🔔
+                    <span id="badgeNotif"
+                          style="display:none; position:absolute; top:-2px; right:-2px;
+                             background:#DC2626; color:#fff; font-size:.6rem; font-weight:700;
+                             width:16px; height:16px; border-radius:50%; align-items:center;
+                             justify-content:center; border:2px solid #fff;">
+                        0
+                    </span>
+                </a>
+            }
+            @*{{!-- Derecha --}}*@
+            <div class="navbar-right">
+                <span class="nav-badge @badgeClass">@rolIcono @rol</span>
+                <div class="nav-sep"></div>
+                <a asp-action="Index" asp-controller="Perfil"
+                   style="text-decoration:none; display:flex; align-items:center;"
+                   onmouseover="this.style.opacity='.75';"
+                   onmouseout="this.style.opacity='1';">
+                    <div class="nav-user">
+                        <div class="nav-avatar">
+                            @if (!string.IsNullOrEmpty(fotoUrl))
+                            {
+                                <img src="@fotoUrl"
+                                     style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+                            }
+                            else
+                            {
+                                @iniciales
+                            }
+                        </div>
+                        <div class="nav-user-texts">
+                            <span class="nav-user-name">@nombreCompleto</span>
+                            <span class="nav-user-sub">Sesión activa</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="nav-sep"></div>
+                <form asp-action="Logout" asp-controller="Auth" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z"
+                                  clip-rule="evenodd" />
+                            <path fill-rule="evenodd"
+                                  d="M6 10a.75.75 0 01.75-.75h9.546l-1.048-1.16a.75.75 0 111.11-1.008l2.5 2.763a.75.75 0 010 1.008l-2.5 2.763a.75.75 0 11-1.11-1.009l1.048-1.16H6.75A.75.75 0 016 10z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </nav>
+    }
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+    @if (User.IsInRole("Padre"))
+    {
+        <script>
+            async function actualizarCampana() {
+                try {
+                    const res  = await fetch('/Notificacion/Contador');
+                    const data = await res.json();
+                    const badge = document.getElementById('badgeNotif');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count > 9 ? '9+' : data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                } catch {}
+            }
+
+            actualizarCampana();
+            setInterval(actualizarCampana, 30000); // cada 30 segundos
+        </script>
+    }
+    <script>
+        function buscarEnTabla(inputId, tablaId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.addEventListener('input', function () {
+                const texto = this.value.toLowerCase().trim();
+                const filas = document.querySelectorAll('#' + tablaId + ' tbody tr');
+                filas.forEach(fila => {
+                    const contenido = fila.textContent.toLowerCase();
+                    fila.style.display = contenido.includes(texto) ? '' : 'none';
+                });
+            });
+        }
+
+        // Para grillas de tarjetas (SeleccionarChofer)
+        function buscarEnTarjetas(inputId, selectorTarjetas, campoTexto) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.addEventListener('input', function () {
+                const texto = this.value.toLowerCase().trim();
+                document.querySelectorAll(selectorTarjetas).forEach(card => {
+                    const contenido = card.querySelector(campoTexto)?.textContent.toLowerCase() ?? '';
+                    card.closest('label').style.display =
+                        contenido.includes(texto) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

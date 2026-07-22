@@ -1,0 +1,470 @@
+﻿/* ============================================================
+   TRANSPORTE ESCOLAR — Login CSS
+   Diseño moderno, profesional y responsivo
+   ============================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --blue-600: #2563EB;
+    --blue-700: #1D4ED8;
+    --blue-50: #EFF6FF;
+    --slate-900: #0F172A;
+    --slate-700: #334155;
+    --slate-500: #64748B;
+    --slate-200: #E2E8F0;
+    --slate-100: #F1F5F9;
+    --white: #FFFFFF;
+    --red-500: #EF4444;
+    --red-50: #FEF2F2;
+    --green-500: #22C55E;
+    --shadow-lg: 0 20px 60px -10px rgba(15,23,42,.25);
+    --radius: 14px;
+    --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--slate-100);
+    
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Fondo animado ── */
+.login-bg {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: url(../images/2.png);
+    /*background: radial-gradient(ellipse at 20% 50%, rgba(37,99,235,.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,.12) 0%, transparent 50%), linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+*/}
+
+/* ── Tarjeta ── */
+.login-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem 2.5rem 2rem;
+    animation: slideUp .4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Header ── */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo {
+    width: 390px;
+    height: 160px;
+    margin: 0 auto 1.25rem;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(37,99,235,.3);
+}
+
+    .login-logo svg {
+        width: 360px;
+        height: 160px;
+        display: block;
+    }
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--slate-900);
+    letter-spacing: -.02em;
+}
+
+.login-subtitle {
+    font-size: .875rem;
+    color: var(--slate-500);
+    margin-top: .25rem;
+}
+
+/* ── Alerta de error ── */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    font-size: .875rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+
+    .alert svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+.alert-error {
+    background: var(--red-50);
+    color: var(--red-500);
+    border: 1px solid #FECACA;
+}
+
+/* ── Form groups ── */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--slate-700);
+    margin-bottom: .45rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+    .form-label svg {
+        width: 14px;
+        height: 14px;
+        color: var(--blue-600);
+    }
+
+/* ── Selector de roles ── */
+.role-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+}
+
+.role-option input[type="radio"] {
+    display: none;
+}
+
+.role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    padding: .65rem .5rem;
+    border: 2px solid var(--slate-200);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: .8125rem;
+    font-weight: 500;
+    color: var(--slate-700);
+    user-select: none;
+}
+
+    .role-card:hover {
+        border-color: var(--blue-600);
+        background: var(--blue-50);
+    }
+
+.role-option input:checked + .role-card {
+    border-color: var(--blue-600);
+    background: var(--blue-50);
+    color: var(--blue-700);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.role-icon {
+    font-size: 1.5rem;
+}
+
+/* ── Inputs ── */
+.input-wrapper {
+    position: relative;
+}
+
+.input-password {
+    display: flex;
+    align-items: center;
+}
+
+.form-input {
+    width: 100%;
+    padding: .7rem 1rem;
+    border: 1.5px solid var(--slate-200);
+    border-radius: 8px;
+    font-size: .9375rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--slate-900);
+    background: var(--white);
+    transition: var(--transition);
+    outline: none;
+}
+
+    .form-input:focus {
+        border-color: var(--blue-600);
+        box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .form-input::placeholder {
+        color: #94A3B8;
+    }
+
+.input-password .form-input {
+    padding-right: 2.8rem;
+}
+
+.toggle-password {
+    position: absolute;
+    right: .75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--slate-500);
+    display: flex;
+    align-items: center;
+}
+
+    .toggle-password svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .toggle-password:hover {
+        color: var(--blue-600);
+    }
+
+/* ── Campo ficha (animación) ── */
+#fichaGroup {
+    overflow: hidden;
+    animation: fadeIn .25s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ficha-label {
+    color: #D97706;
+}
+
+    .ficha-label svg {
+        color: #D97706;
+    }
+
+.badge-required {
+    margin-left: auto;
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: .625rem;
+    padding: .1rem .45rem;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+/* ── Error de campo ── */
+.field-error {
+    display: block;
+    font-size: .8125rem;
+    color: var(--red-500);
+    margin-top: .3rem;
+    font-weight: 500;
+}
+
+/* ── Checkbox ── */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--blue-600);
+    cursor: pointer;
+}
+
+.check-label {
+    font-size: .875rem;
+    color: var(--slate-500);
+    cursor: pointer;
+}
+
+/* ── Botón principal ── */
+.btn-login {
+    width: 100%;
+    padding: .8rem;
+    background: var(--blue-600);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+}
+
+    .btn-login:hover:not(:disabled) {
+        background: var(--blue-700);
+        box-shadow: 0 4px 14px rgba(37,99,235,.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .btn-login:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+    }
+
+.spin {
+    width: 18px;
+    height: 18px;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Footer ── */
+.login-footer {
+    text-align: center;
+    font-size: .75rem;
+    color: var(--slate-500);
+    margin-top: 1.5rem;
+}
+
+/* ── Dashboards básicos ── */
+.dashboard-container {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    color: var(--white);
+}
+
+.admin-header {
+    background: linear-gradient(135deg,#1D4ED8,#4F46E5);
+}
+
+.azafata-header {
+    background: linear-gradient(135deg,#0369A1,#0891B2);
+}
+
+.padre-header {
+    background: linear-gradient(135deg,#15803D,#16A34A);
+}
+
+.dash-icon {
+    font-size: 3rem;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.dashboard-header p {
+    font-size: .9rem;
+    opacity: .85;
+}
+
+.dash-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.dash-card {
+    background: var(--white);
+    border: 1.5px solid var(--slate-200);
+    border-radius: 10px;
+    padding: 1.25rem;
+    font-weight: 500;
+    color: var(--slate-700);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+    .dash-card:hover {
+        border-color: var(--blue-600);
+        box-shadow: 0 4px 14px rgba(37,99,235,.1);
+        transform: translateY(-2px);
+    }
+
+.btn-salir {
+    padding: .6rem 1.5rem;
+    background: #EF4444;
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+    .btn-salir:hover {
+        background: #DC2626;
+    }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+
+    .role-selector {
+        grid-template-columns: repeat(3,1fr);
+    }
+}
