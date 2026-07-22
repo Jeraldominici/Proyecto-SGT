@@ -1,0 +1,190 @@
+﻿@model TransporteEscolar.ViewModels.IncidenciaViewModel
+@{
+    ViewData["Title"] = "Nueva Incidencia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var alumnos = ViewBag.Alumnos as List<TransporteEscolar.Models.Alumno> ?? new();
+}
+
+<div style="max-width:580px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.75rem;">
+        <a asp-action="Incidencias" asp-controller="Azafata" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            </svg>
+        </a>
+        <div>
+            <h2 style="font-size:1.25rem; font-weight:700; color:#0F172A; margin:0;">Nueva Incidencia</h2>
+            <p style="font-size:.8125rem; color:#64748B; margin-top:.15rem;">Registra una novedad o incidencia del día</p>
+        </div>
+    </div>
+
+    <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:14px;
+                padding:2rem; box-shadow:0 1px 4px rgba(0,0,0,.05);">
+        <form asp-action="NuevaIncidencia" asp-controller="Azafata" method="post" novalidate>
+            @Html.AntiForgeryToken()
+
+            <!-- Tipo -->
+            <div class="fgroup">
+                <label class="flabel">Tipo de Incidencia</label>
+                <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem;">
+                    @foreach (var tipo in new[] { "Comportamiento", "Accidente", "Retraso", "Otro" })
+                    {
+                        <label class="tipo-option">
+                            <input type="radio" name="Tipo" value="@tipo"
+                                   @(Model.Tipo == tipo ? "checked" : "") required />
+                            <div class="tipo-card">
+                                <span>@(tipo == "Comportamiento" ? "😤" : tipo == "Accidente" ? "🚨" : tipo == "Retraso" ? "⏰" : "📌")</span>
+                                @tipo
+                            </div>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="Tipo" class="ferror"></span>
+            </div>
+
+            <!-- Alumno relacionado -->
+            <div class="fgroup">
+                <label class="flabel">
+                    Alumno Relacionado
+                    <span style="font-weight:400; color:#94A3B8; font-size:.7rem; margin-left:.3rem;">(opcional — dejar vacío si es general)</span>
+                </label>
+                <select name="AlumnoId" class="finput">
+                    <option value="0">— Incidencia general del autobús —</option>
+                    @foreach (var a in alumnos)
+                    {
+                        <option value="@a.AlumnoId">@a.NombreCompleto (@(a.GradoEscolar ?? "Sin grado"))</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Título -->
+            <div class="fgroup">
+                <label asp-for="Titulo" class="flabel">Título</label>
+                <input asp-for="Titulo" class="finput" placeholder="Resumen breve de la incidencia" />
+                <span asp-validation-for="Titulo" class="ferror"></span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="fgroup">
+                <label asp-for="Descripcion" class="flabel">Descripción Detallada</label>
+                <textarea asp-for="Descripcion" class="finput" rows="4"
+                          placeholder="Describe la incidencia con detalle..."
+                          style="resize:vertical; min-height:100px;"></textarea>
+                <span asp-validation-for="Descripcion" class="ferror"></span>
+            </div>
+
+            <!-- Botones -->
+            <div style="display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem;">
+                <a asp-action="Incidencias" asp-controller="Azafata"
+                   style="padding:.6rem 1.25rem; border:1.5px solid #E2E8F0; border-radius:8px;
+                          color:#64748B; font-size:.875rem; font-weight:500; text-decoration:none;
+                          display:inline-flex; align-items:center; transition:.15s;"
+                   onmouseover="this.style.borderColor='#94A3B8';"
+                   onmouseout="this.style.borderColor='#E2E8F0';">
+                    Cancelar
+                </a>
+                <button type="submit"
+                        style="padding:.6rem 1.5rem; background:#DC2626; color:#fff; border:none;
+                               border-radius:8px; font-size:.875rem; font-weight:600; cursor:pointer;
+                               font-family:'Inter',sans-serif; transition:.15s; display:inline-flex;
+                               align-items:center; gap:.4rem;"
+                        onmouseover="this.style.background='#B91C1C';"
+                        onmouseout="this.style.background='#DC2626';">
+                    📝 Registrar Incidencia
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .fgroup {
+        margin-bottom: 1.1rem;
+    }
+
+    .flabel {
+        display: block;
+        font-size: .8125rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .35rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .finput {
+        width: 100%;
+        padding: .65rem .9rem;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        font-size: .9375rem;
+        font-family: 'Inter',sans-serif;
+        color: #0F172A;
+        outline: none;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+        .finput:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+
+    .ferror {
+        display: block;
+        font-size: .8rem;
+        color: #DC2626;
+        margin-top: .25rem;
+        font-weight: 500;
+    }
+
+    .btn-back {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        color: #64748B;
+        text-decoration: none;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+
+        .btn-back:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+            background: #EFF6FF;
+        }
+
+    .tipo-option input[type="radio"] {
+        display: none;
+    }
+
+    .tipo-card {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .65rem .85rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: .875rem;
+        font-weight: 500;
+        color: #334155;
+        transition: .15s;
+    }
+
+        .tipo-card:hover {
+            border-color: #2563EB;
+            background: #EFF6FF;
+        }
+
+    .tipo-option input:checked + .tipo-card {
+        border-color: #2563EB;
+        background: #EFF6FF;
+        color: #1D4ED8;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    }
+</style>

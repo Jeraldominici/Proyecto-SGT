@@ -1,0 +1,200 @@
+﻿@model List<TransporteEscolar.Models.Incidencia>
+@{
+    ViewData["Title"] = "Incidencias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div style="display:flex; align-items:center; gap:1rem;">
+        <a asp-action="Dashboard" asp-controller="Azafata" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            </svg>
+        </a>
+        <div>
+            <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">Incidencias</h2>
+            <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">@Model.Count incidencia(s) registrada(s)</p>
+        </div>
+    </div>
+    <a asp-action="NuevaIncidencia" asp-controller="Azafata" class="btn-primary-action">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;">
+            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        </svg>
+        Nueva Incidencia
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-toast success">✅ @TempData["Exito"]</div>
+}
+
+<div class="tabla-card">
+    @if (!Model.Any())
+    {
+        <div style="padding:3rem; text-align:center; color:#94A3B8;">
+            <div style="font-size:2.5rem; margin-bottom:.75rem;">📝</div>
+            <div style="font-weight:600;">No hay incidencias registradas</div>
+        </div>
+    }
+    else
+    {
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Título</th>
+                    <th>Alumno</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var inc in Model)
+                {
+                    <tr>
+                        <td style="white-space:nowrap; font-size:.8125rem; color:#64748B;">
+                            @inc.Fecha.ToString("dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <span class="tipo-badge tipo-@inc.Tipo.ToLower()">@inc.Tipo</span>
+                        </td>
+                        <td style="font-weight:600; color:#0F172A;">@inc.Titulo</td>
+                        <td style="color:#64748B;">@(inc.Alumno?.NombreCompleto ?? "General")</td>
+                        <td style="font-size:.8125rem; color:#64748B; max-width:280px;">
+                            @inc.Descripcion
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<style>
+    .btn-back {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        color: #64748B;
+        text-decoration: none;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+
+        .btn-back:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+            background: #EFF6FF;
+        }
+
+    .btn-primary-action {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .55rem 1.1rem;
+        background: #2563EB;
+        color: #fff;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .18s;
+    }
+
+        .btn-primary-action:hover {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+        }
+
+    .alert-toast {
+        padding: .75rem 1.1rem;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        margin-bottom: 1.25rem;
+    }
+
+        .alert-toast.success {
+            background: #F0FDF4;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+
+    .tabla-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1.5px solid #E2E8F0;
+        overflow-x: auto;
+    }
+
+    .tabla-usuarios {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .tabla-usuarios thead tr {
+            background: #F8FAFC;
+            border-bottom: 1.5px solid #E2E8F0;
+        }
+
+        .tabla-usuarios th {
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            white-space: nowrap;
+        }
+
+        .tabla-usuarios td {
+            padding: .85rem 1rem;
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        .tabla-usuarios tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        .tabla-usuarios tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .tipo-badge {
+        font-size: .7rem;
+        font-weight: 700;
+        padding: .2rem .6rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+        .tipo-badge.tipo-comportamiento {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .tipo-badge.tipo-accidente {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+        .tipo-badge.tipo-retraso {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .tipo-badge.tipo-otro {
+            background: #F1F5F9;
+            color: #475569;
+        }
+</style>
