@@ -1,0 +1,432 @@
+﻿@model TransporteEscolar.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ── Encabezado ── -->
+<div style="margin-bottom:1.75rem;">
+    <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">
+        Panel de Administración
+    </h2>
+    <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+        @DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy",
+        new System.Globalization.CultureInfo("es-ES"))
+    </p>
+</div>
+
+<!-- ── Tarjetas de resumen ── -->
+<div class="grid-resumen" style="margin-bottom:1.75rem;">
+    <div class="res-card azul">
+        <div class="res-icon">👥</div>
+        <div class="res-valor">@Model.TotalUsuarios</div>
+        <div class="res-label">Total Usuarios</div>
+        <div class="res-sub">@Model.UsuariosActivos activos</div>
+    </div>
+    <div class="res-card verde">
+        <div class="res-icon">👶</div>
+        <div class="res-valor">@Model.TotalAlumnos</div>
+        <div class="res-label">Alumnos Activos</div>
+    </div>
+    <div class="res-card amarillo">
+        <div class="res-icon">🚌</div>
+        <div class="res-valor">@Model.TotalAutobuses</div>
+        <div class="res-label">Autobuses Activos</div>
+    </div>
+    <div class="res-card cyan">
+        <div class="res-icon">🧑‍✈️</div>
+        <div class="res-valor">@Model.TotalChoferes</div>
+        <div class="res-label">Choferes Activos</div>
+    </div>
+    <div class="res-card indigo">
+        <div class="res-icon">🔑</div>
+        <div class="res-valor">@Model.AccesosHoy</div>
+        <div class="res-label">Accesos Hoy</div>
+    </div>
+    <div class="res-card naranja">
+        <div class="res-icon">📝</div>
+        <div class="res-valor">@Model.IncidenciasHoy</div>
+        <div class="res-label">Incidencias Hoy</div>
+    </div>
+</div>
+
+<!-- ── Grid principal: Menú + Gráficas ── -->
+<div style="display:grid; grid-template-columns:260px 1fr; gap:1.5rem; align-items:start;">
+
+    <!-- Columna izquierda: Accesos Rápidos -->
+    <div style="position:sticky; top:80px;">
+        <h3 style="font-size:.875rem; font-weight:700; color:#0F172A; margin:0 0 .75rem;
+                   text-transform:uppercase; letter-spacing:.05em;">
+            ⚡ Accesos Rápidos
+        </h3>
+        <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:14px;
+                    overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.05);">
+            <a asp-action="Usuarios" asp-controller="Admin" class="menu-item">
+                <span class="menu-icono">👥</span> Gestión de Usuarios
+            </a>
+            <a asp-action="Index" asp-controller="Autobus" class="menu-item">
+                <span class="menu-icono">🚌</span> Gestión de Autobuses
+            </a>
+            <a asp-action="Index" asp-controller="Alumno" class="menu-item">
+                <span class="menu-icono">👶</span> Gestión de Alumnos
+            </a>
+            <a asp-action="Index" asp-controller="Chofer" class="menu-item">
+                <span class="menu-icono">🧑‍✈️</span> Gestión de Choferes
+            </a>
+            <a asp-action="Index" asp-controller="ImportExport" class="menu-item">
+                <span class="menu-icono">📊</span> Importar / Exportar
+            </a>
+            <a asp-action="Reportes" asp-controller="Admin" class="menu-item">
+                <span class="menu-icono">📄</span> Reportes
+            </a>
+            <a asp-action="Auditoria" asp-controller="Admin" class="menu-item">
+                <span class="menu-icono">🔒</span> Auditoría de Accesos
+            </a>
+            <a asp-action="EnviarMensaje" asp-controller="Notificacion" class="menu-item">
+                <span class="menu-icono">📢</span> Enviar Notificaciones
+            </a>
+            <div class="menu-item" style="color:#94A3B8; cursor:default;">
+                <span class="menu-icono">🗺️</span> Ubicación de Buses
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha: Gráficas -->
+    <div>
+        <!-- Fila 1 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr;
+                    gap:1.25rem; margin-bottom:1.25rem;">
+            <div class="chart-card">
+                <div class="chart-titulo">📈 Accesos por Día (últimos 14 días)</div>
+                <div id="chartAccesos"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-titulo">📋 Asistencia por Día (últimos 14 días)</div>
+                <div id="chartAsistencia"></div>
+            </div>
+        </div>
+
+        <!-- Fila 2 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem;">
+            
+            <div class="chart-card">
+                <div class="chart-titulo">🚌 Alumnos por Autobús</div>
+                <div id="chartBuses"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-titulo">🚨 Incidencias por Tipo</div>
+                <div id="chartIncidencias"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* Tarjetas resumen */
+    .grid-resumen {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .res-card {
+        border-radius: 14px;
+        padding: 1.25rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+        transition: transform .18s ease, box-shadow .18s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .res-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        }
+
+        .res-card::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+        }
+
+        .res-card.azul {
+            background: linear-gradient(135deg,#2563EB,#3B82F6);
+            color: #fff;
+        }
+
+        .res-card.verde {
+            background: linear-gradient(135deg,#16A34A,#22C55E);
+            color: #fff;
+        }
+
+        .res-card.amarillo {
+            background: linear-gradient(135deg,#D97706,#F59E0B);
+            color: #fff;
+        }
+
+        .res-card.cyan {
+            background: linear-gradient(135deg,#0369A1,#0EA5E9);
+            color: #fff;
+        }
+
+        .res-card.indigo {
+            background: linear-gradient(135deg,#4F46E5,#818CF8);
+            color: #fff;
+        }
+
+        .res-card.rojo {
+            background: linear-gradient(135deg,#DC2626,#F87171);
+            color: #fff;
+        }
+
+        .res-card.naranja {
+            background: linear-gradient(135deg,#EA580C,#FB923C);
+            color: #fff;
+        }
+
+    .res-icon {
+        font-size: 1.5rem;
+    }
+
+    .res-valor {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .res-label {
+        font-size: .8125rem;
+        font-weight: 600;
+        opacity: .9;
+    }
+
+    .res-sub {
+        font-size: .75rem;
+        opacity: .75;
+    }
+
+    /* Gráficas */
+    .chart-card {
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .chart-titulo {
+        font-size: .875rem;
+        font-weight: 700;
+        color: #0F172A;
+        margin-bottom: 1rem;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .85rem 1.25rem;
+        font-size: .9rem;
+        font-weight: 500;
+        color: #334155;
+        text-decoration: none;
+        border-bottom: 1px solid #F1F5F9;
+        transition: all .15s ease;
+    }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #F8FAFC;
+            color: #2563EB;
+            padding-left: 1.5rem;
+        }
+
+    .menu-icono {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        width: 24px;
+        text-align: center;
+    }
+</style>
+    
+
+
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // ── Datos desde el modelo ────────────────────────────────────
+    const accesosFechas   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AccesosFechas));
+    const accesosExitosos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AccesosExitosos));
+    const accesosFallidos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AccesosFallidos));
+
+    const asistFechas    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistFechas));
+    const asistPresentes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistPresentes));
+    const asistAusentes  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistAusentes));
+
+    const rolesNombres    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RolesNombres));
+    const rolesCantidades = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RolesCantidades));
+
+    const busesFichas  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BusesFichas));
+    const busesAlumnos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BusesAlumnos));
+
+    const incTipos      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.IncTipos));
+    const incCantidades = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.IncCantidades));
+
+    // ── Opciones comunes ─────────────────────────────────────────
+    const fontFamily = "'Inter', sans-serif";
+    const colores    = ['#2563EB','#16A34A','#D97706','#DC2626','#7C3AED','#0369A1','#EA580C'];
+
+    // ── 1. Accesos por día (línea) ───────────────────────────────
+    new ApexCharts(document.getElementById('chartAccesos'), {
+        chart: { type: 'area', height: 220, toolbar: { show: false },
+                 fontFamily, animations: { enabled: true, speed: 600 } },
+        series: [
+            { name: 'Exitosos', data: accesosExitosos },
+            { name: 'Fallidos', data: accesosFallidos }
+        ],
+        colors: ['#2563EB', '#DC2626'],
+        fill: {
+            type: 'gradient',
+            gradient: { opacityFrom: .35, opacityTo: .05 }
+        },
+        stroke: { curve: 'smooth', width: 2.5 },
+        xaxis: {
+            categories: accesosFechas,
+            labels: { style: { fontSize: '11px', colors: '#94A3B8' } },
+            axisBorder: { show: false }, axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: { style: { fontSize: '11px', colors: '#94A3B8' } },
+            min: 0
+        },
+        grid: { borderColor: '#F1F5F9', strokeDashArray: 4 },
+        legend: { fontSize: '12px', fontWeight: 600 },
+        tooltip: { x: { format: 'dd/MM' } },
+        dataLabels: { enabled: false }
+    }).render();
+
+    // ── 2. Asistencia por día (barras apiladas) ──────────────────
+    new ApexCharts(document.getElementById('chartAsistencia'), {
+        chart: { type: 'bar', height: 220, stacked: true,
+                 toolbar: { show: false }, fontFamily,
+                 animations: { enabled: true, speed: 600 } },
+        series: [
+            { name: 'Presentes', data: asistPresentes },
+            { name: 'Ausentes',  data: asistAusentes  }
+        ],
+        colors: ['#22C55E', '#FCA5A5'],
+        plotOptions: {
+            bar: { borderRadius: 4, columnWidth: '55%' }
+        },
+        xaxis: {
+            categories: asistFechas,
+            labels: { style: { fontSize: '11px', colors: '#94A3B8' } },
+            axisBorder: { show: false }, axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: { style: { fontSize: '11px', colors: '#94A3B8' } },
+            min: 0
+        },
+        grid: { borderColor: '#F1F5F9', strokeDashArray: 4 },
+        legend: { fontSize: '12px', fontWeight: 600 },
+        dataLabels: { enabled: false },
+        fill: { opacity: 1 }
+    }).render();
+
+    // ── 3. Usuarios por rol (dona) ───────────────────────────────
+    new ApexCharts(document.getElementById('chartRoles'), {
+        chart: { type: 'donut', height: 220, fontFamily,
+                 animations: { enabled: true, speed: 600 } },
+        series: rolesCantidades,
+        labels: rolesNombres,
+        colors: colores,
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '65%',
+                    labels: {
+                        show: true,
+                        total: {
+                            show: true, label: 'Total',
+                            fontSize: '13px', fontWeight: 700,
+                            color: '#0F172A'
+                        }
+                    }
+                }
+            }
+        },
+        legend: { position: 'bottom', fontSize: '12px', fontWeight: 600 },
+        dataLabels: { enabled: false },
+        stroke: { width: 0 }
+    }).render();
+
+    // ── 4. Alumnos por autobús (barras horizontales) ─────────────
+    new ApexCharts(document.getElementById('chartBuses'), {
+        chart: { type: 'bar', height: 220, toolbar: { show: false },
+                 fontFamily, animations: { enabled: true, speed: 600 } },
+        series: [{ name: 'Alumnos', data: busesAlumnos }],
+        colors: ['#0369A1'],
+        plotOptions: {
+            bar: { borderRadius: 5, horizontal: true, barHeight: '55%',
+                   dataLabels: { position: 'top' } }
+        },
+        xaxis: {
+            categories: busesFichas,
+            labels: { style: { fontSize: '11px', colors: '#94A3B8' } },
+            axisBorder: { show: false }, axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: { style: { fontSize: '12px', fontWeight: 600, colors: '#334155' } }
+        },
+        grid: { borderColor: '#F1F5F9', strokeDashArray: 4 },
+        dataLabels: {
+            enabled: true,
+            offsetX: 18,
+            style: { fontSize: '11px', colors: ['#334155'] }
+        },
+        tooltip: { y: { formatter: v => v + ' alumnos' } }
+    }).render();
+
+    // ── 5. Incidencias por tipo (dona) ───────────────────────────
+    if (incTipos.length > 0) {
+        new ApexCharts(document.getElementById('chartIncidencias'), {
+            chart: { type: 'donut', height: 220, fontFamily,
+                     animations: { enabled: true, speed: 600 } },
+            series: incCantidades,
+            labels: incTipos,
+            colors: ['#D97706','#DC2626','#2563EB','#7C3AED'],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true, label: 'Total',
+                                fontSize: '13px', fontWeight: 700,
+                                color: '#0F172A'
+                            }
+                        }
+                    }
+                }
+            },
+            legend: { position: 'bottom', fontSize: '12px', fontWeight: 600 },
+            dataLabels: { enabled: false },
+            stroke: { width: 0 }
+        }).render();
+    } else {
+        document.getElementById('chartIncidencias').innerHTML =
+            '<div style="height:220px; display:flex; align-items:center; justify-content:center; color:#94A3B8; font-size:.875rem;">Sin incidencias registradas</div>';
+    }
+</script>

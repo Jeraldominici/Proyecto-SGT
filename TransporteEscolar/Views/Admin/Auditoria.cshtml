@@ -1,0 +1,368 @@
+﻿@model TransporteEscolar.ViewModels.BitacoraViewModel
+@{
+    ViewData["Title"] = "Auditoría de Accesos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Encabezado -->
+<div style="display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+        <a asp-action="Dashboard" asp-controller="Admin"
+           style="display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1.25rem;
+          font-size:.875rem; font-weight:600; color:#64748B; text-decoration:none;
+          padding:.4rem .85rem; border:1.5px solid #E2E8F0; border-radius:8px;
+          background:#fff; transition:.15s;"
+           onmouseover="this.style.borderColor='#2563EB'; this.style.color='#2563EB';"
+           onmouseout="this.style.borderColor='#E2E8F0'; this.style.color='#64748B';">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                 style="width:15px; height:15px;">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            </svg>
+            Volver al Dashboard
+        </a>
+        <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">
+            Auditoría de Accesos
+        </h2>
+        <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+            @Model.TotalRegistros registro(s) en el sistema
+        </p>
+    </div>
+
+    <!-- Botón limpiar bitácora -->
+    <form asp-action="LimpiarBitacora" asp-controller="Admin" method="post"
+          onsubmit="return confirm('¿Eliminar todos los registros de más de 90 días?');">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="dias" value="90" />
+        <button type="submit" class="btn-danger-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                 style="width:15px;height:15px;">
+                <path fill-rule="evenodd"
+                      d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4z"
+                      clip-rule="evenodd"/>
+            </svg>
+            Limpiar &gt;90 días
+        </button>
+    </form>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-toast success">✅ @TempData["Exito"]</div>
+}
+
+<!-- Tarjetas de estadísticas -->
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+            gap:1rem; margin-bottom:1.75rem;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#EFF6FF; color:#2563EB;">📋</div>
+        <div class="stat-value">@Model.TotalRegistros</div>
+        <div class="stat-label">Total registros</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#F0FDF4; color:#15803D;">✅</div>
+        <div class="stat-value">@Model.TotalExitosos</div>
+        <div class="stat-label">Accesos exitosos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF2F2; color:#DC2626;">❌</div>
+        <div class="stat-value">@Model.TotalFallidos</div>
+        <div class="stat-label">Accesos fallidos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF3C7; color:#D97706;">⚠️</div>
+        <div class="stat-value">
+            @(Model.TotalRegistros > 0
+                ? $"{(Model.TotalFallidos * 100 / Model.TotalRegistros)}%"
+                : "0%")
+        </div>
+        <div class="stat-label">Tasa de fallo</div>
+    </div>
+</div>
+
+<!-- Panel de filtros -->
+<div class="filtros-card">
+    <form asp-action="Auditoria" asp-controller="Admin" method="get">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+                    gap:1rem; align-items:end;">
+
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Usuario</label>
+                <input type="text" name="usuario" value="@Model.FiltroUsuario"
+                       class="finput" placeholder="Buscar usuario..." />
+            </div>
+
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Resultado</label>
+                <select name="exitoso" class="finput">
+                    <option value="">— Todos —</option>
+                    @if (Model.FiltroExitoso == true)
+                    {
+                        <option value="true" selected>✅ Exitoso</option>
+                        <option value="false">❌ Fallido</option>
+                    }
+                    else if (Model.FiltroExitoso == false)
+                    {
+                        <option value="true">✅ Exitoso</option>
+                        <option value="false" selected>❌ Fallido</option>
+                    }
+                    else
+                    {
+                        <option value="true">✅ Exitoso</option>
+                        <option value="false">❌ Fallido</option>
+                    }
+                </select>
+            </div>
+
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Desde</label>
+                <input type="date" name="desde"
+                       value="@Model.FiltroDesde?.ToString("yyyy-MM-dd")"
+                       class="finput" />
+            </div>
+
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Hasta</label>
+                <input type="date" name="hasta"
+                       value="@Model.FiltroHasta?.ToString("yyyy-MM-dd")"
+                       class="finput" />
+            </div>
+
+            <div style="display:flex; gap:.5rem;">
+                <button type="submit" class="btn-filtrar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                         style="width:15px;height:15px;">
+                        <path fill-rule="evenodd"
+                              d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                    Filtrar
+                </button>
+                @if (Model.HayFiltros)
+                {
+                    <a asp-action="Auditoria" asp-controller="Admin" class="btn-limpiar-filtro">
+                        ✕ Limpiar
+                    </a>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de registros -->
+<div class="tabla-card">
+    @if (!Model.Registros.Any())
+    {
+        <div style="padding:3rem; text-align:center; color:#94A3B8;">
+            <div style="font-size:2.5rem; margin-bottom:.75rem;">🔍</div>
+            <div style="font-weight:600; color:#64748B;">No se encontraron registros</div>
+            <div style="font-size:.875rem; margin-top:.3rem;">
+                Intenta con otros filtros de búsqueda
+            </div>
+        </div>
+    }
+    else
+    {
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Resultado</th>
+                    <th>Detalle</th>
+                    <th>Dirección IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reg in Model.Registros)
+                {
+                    <tr>
+                        <td style="white-space:nowrap;">
+                            <div style="font-weight:600; color:#0F172A; font-size:.8125rem;">
+                                @reg.FechaHora.ToLocalTime().ToString("dd/MM/yyyy")
+                            </div>
+                            <div style="color:#94A3B8; font-size:.75rem;">
+                                @reg.FechaHora.ToLocalTime().ToString("HH:mm:ss")
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600; color:#0F172A;">@reg.NombreUsuario</div>
+                            @if (reg.Usuario?.NombreCompleto != null)
+                            {
+                                <div style="font-size:.75rem; color:#94A3B8;">
+                                    @reg.Usuario.NombreCompleto
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            @if (reg.Usuario?.Rol != null)
+                            {
+                                <span class="badge-rol @reg.Usuario.Rol.Nombre.ToLower()">
+                                    @reg.Usuario.Rol.Nombre
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="color:#94A3B8; font-size:.8125rem;">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (reg.Exitoso)
+                            {
+                                <span class="status-badge activo">✅ Exitoso</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge bloqueado">❌ Fallido</span>
+                            }
+                        </td>
+                        <td style="font-size:.8125rem; color:#64748B;">
+                            @(reg.Detalle ?? "—")
+                        </td>
+                        <td>
+                            <code style="font-size:.75rem; background:#F1F5F9;
+                                         padding:.15rem .4rem; border-radius:4px; color:#475569;">
+                                @(reg.DireccionIP ?? "—")
+                            </code>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        @if (!Model.HayFiltros && Model.TotalPaginas > 1)
+        {
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        padding:.85rem 1rem; border-top:1px solid #F1F5F9; flex-wrap:wrap; gap:.5rem;">
+                <span style="font-size:.8125rem; color:#64748B;">
+                    Página @Model.PaginaActual de @Model.TotalPaginas
+                    (@Model.TotalRegistros registros en total)
+                </span>
+                <div style="display:flex; gap:.35rem;">
+                    @if (Model.PaginaActual > 1)
+                    {
+                        <a asp-action="Auditoria" asp-controller="Admin"
+                           asp-route-pagina="@(Model.PaginaActual - 1)"
+                           class="btn-pag">← Anterior</a>
+                    }
+                    @for (int i = Math.Max(1, Model.PaginaActual - 2);
+                              i <= Math.Min(Model.TotalPaginas, Model.PaginaActual + 2); i++)
+                    {
+                        <a asp-action="Auditoria" asp-controller="Admin"
+                           asp-route-pagina="@i"
+                           class="btn-pag @(i == Model.PaginaActual ? "activo" : "")">@i</a>
+                    }
+                    @if (Model.PaginaActual < Model.TotalPaginas)
+                    {
+                        <a asp-action="Auditoria" asp-controller="Admin"
+                           asp-route-pagina="@(Model.PaginaActual + 1)"
+                           class="btn-pag">Siguiente →</a>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .alert-toast {
+        padding: .75rem 1.1rem; border-radius: 8px;
+        font-size: .875rem; font-weight: 500; margin-bottom: 1.25rem;
+    }
+    .alert-toast.success { background:#F0FDF4; color:#166534; border:1px solid #BBF7D0; }
+
+    .btn-danger-outline {
+        display: inline-flex; align-items: center; gap: .4rem;
+        padding: .5rem 1rem; border: 1.5px solid #FCA5A5;
+        border-radius: 8px; background: transparent; color: #DC2626;
+        font-size: .8125rem; font-weight: 600; cursor: pointer;
+        font-family: 'Inter', sans-serif; transition: all .15s ease;
+    }
+    .btn-danger-outline:hover { background: #FEF2F2; }
+
+    .stat-card {
+        background: #fff; border: 1.5px solid #E2E8F0; border-radius: 12px;
+        padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: .4rem;
+    }
+    .stat-icon  { font-size:1.25rem; width:38px; height:38px; border-radius:9px;
+                  display:flex; align-items:center; justify-content:center; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: #0F172A; }
+    .stat-label { font-size: .75rem; color: #64748B; font-weight: 500; }
+
+    .filtros-card {
+        background: #fff; border: 1.5px solid #E2E8F0; border-radius: 12px;
+        padding: 1.25rem; margin-bottom: 1.25rem;
+    }
+    .fgroup  { margin-bottom: 1rem; }
+    .flabel  {
+        display: block; font-size: .75rem; font-weight: 700; color: #64748B;
+        margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .finput  {
+        width: 100%; padding: .6rem .85rem; border: 1.5px solid #E2E8F0;
+        border-radius: 8px; font-size: .875rem; font-family: 'Inter', sans-serif;
+        color: #0F172A; outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .finput:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+    .btn-filtrar {
+        display: inline-flex; align-items: center; gap: .35rem;
+        padding: .6rem 1.1rem; background: #2563EB; color: #fff;
+        border: none; border-radius: 8px; font-size: .875rem; font-weight: 600;
+        cursor: pointer; font-family: 'Inter', sans-serif; transition: .15s ease;
+        white-space: nowrap;
+    }
+    .btn-filtrar:hover { background: #1D4ED8; }
+
+    .btn-limpiar-filtro {
+        display: inline-flex; align-items: center;
+        padding: .6rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 8px;
+        color: #64748B; font-size: .875rem; font-weight: 500;
+        text-decoration: none; transition: .15s ease; white-space: nowrap;
+    }
+    .btn-limpiar-filtro:hover { border-color: #94A3B8; color: #334155; }
+
+    .tabla-card {
+        background: #fff; border-radius: 12px; border: 1.5px solid #E2E8F0;
+        overflow-x: auto; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .tabla-usuarios { width: 100%; border-collapse: collapse; }
+    .tabla-usuarios thead tr {
+        background: #F8FAFC; border-bottom: 1.5px solid #E2E8F0;
+    }
+    .tabla-usuarios th {
+        padding: .75rem 1rem; text-align: left; font-size: .75rem;
+        font-weight: 700; color: #64748B; text-transform: uppercase;
+        letter-spacing: .05em; white-space: nowrap;
+    }
+    .tabla-usuarios td {
+        padding: .8rem 1rem; font-size: .875rem; color: #334155;
+        border-bottom: 1px solid #F1F5F9; vertical-align: middle;
+    }
+    .tabla-usuarios tbody tr:hover { background: #F8FAFC; }
+    .tabla-usuarios tbody tr:last-child td { border-bottom: none; }
+
+    .badge-rol {
+        font-size: .6875rem; font-weight: 700; padding: .2rem .6rem;
+        border-radius: 20px; text-transform: uppercase; letter-spacing: .05em;
+    }
+    .badge-rol.admin   { background:#EFF6FF; color:#1D4ED8; }
+    .badge-rol.azafata { background:#F0F9FF; color:#0369A1; }
+    .badge-rol.padre   { background:#F0FDF4; color:#15803D; }
+
+    .status-badge {
+        font-size: .75rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px;
+    }
+    .status-badge.activo   { background:#F0FDF4; color:#15803D; }
+    .status-badge.bloqueado { background:#FEF2F2; color:#991B1B; }
+
+    .btn-pag {
+        padding: .35rem .7rem; border: 1.5px solid #E2E8F0; border-radius: 6px;
+        font-size: .8125rem; font-weight: 500; color: #475569;
+        text-decoration: none; transition: .15s ease;
+    }
+    .btn-pag:hover  { border-color: #2563EB; color: #2563EB; }
+    .btn-pag.activo { background: #2563EB; color: #fff; border-color: #2563EB; }
+</style>
