@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\AutobusController.cs" />
-    <Compile Remove="Controllers\ChoferController.cs" />
+    <Compile Remove="Controllers\ImportExportController.cs" />
     <Compile Remove="Models\Autobus.cs" />
-    <Compile Remove="Models\JornadaChofer.cs" />
+    <Compile Remove="ViewModels\ImportExportViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +33,9 @@
 
   <ItemGroup>
     <None Include="Controllers\AutobusController.cs" />
-    <None Include="Controllers\ChoferController.cs" />
+    <None Include="Controllers\ImportExportController.cs" />
     <None Include="Models\Autobus.cs" />
-    <None Include="Models\JornadaChofer.cs" />
+    <None Include="ViewModels\ImportExportViewModel.cs" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Importar / Exportar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tabActiva = ViewBag.TabActiva as string ?? "Alumnos";
+    var tabs = new[] { "Alumnos", "Autobuses", "Choferes", "Azafatas" };
+    var iconos = new Dictionary<string, string> {
+        {"Alumnos","👶"}, {"Autobuses","🚌"}, {"Choferes","🧑‍✈️"}, {"Azafatas","👩‍💼"}
+    };
+}
+
+<div style="margin-bottom:1.5rem;">
+    <a asp-action="Dashboard" asp-controller="Admin"
+       style="display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1.25rem;
+          font-size:.875rem; font-weight:600; color:#64748B; text-decoration:none;
+          padding:.4rem .85rem; border:1.5px solid #E2E8F0; border-radius:8px;
+          background:#fff; transition:.15s;"
+       onmouseover="this.style.borderColor='#2563EB'; this.style.color='#2563EB';"
+       onmouseout="this.style.borderColor='#E2E8F0'; this.style.color='#64748B';">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+             style="width:15px; height:15px;">
+            <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+        </svg>
+        Volver al Dashboard
+    </a>
+    <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">
+        Importar / Exportar
+    </h2>
+    <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+        Gestiona datos masivos con archivos Excel
+    </p>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-toast success">✅ @TempData["Exito"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert-toast error">❌ @TempData["Error"]</div>
+}
+
+<!-- Pestañas -->
+<div style="display:flex; gap:.35rem; border-bottom:2px solid #E2E8F0;
+            margin-bottom:1.75rem; flex-wrap:wrap;">
+    @foreach (var tab in tabs)
+    {
+        <a href="@Url.Action("Index", "ImportExport", new { tab })"
+           style="padding:.65rem 1.25rem; font-size:.9rem; font-weight:600;
+                      text-decoration:none; border-radius:8px 8px 0 0; transition:.15s;
+                      @(tab == tabActiva
+                                 ? "background:#2563EB; color:#fff; margin-bottom:-2px; border:2px solid #2563EB; border-bottom:2px solid #fff;"
+                                 : "color:#64748B; border:2px solid transparent;")">
+        @iconos[tab] @tab
+    </a>
+        }
+</div>
+
+<!-- Panel activo -->
+@foreach (var tab in tabs)
+{
+    <div style="display:@(tab == tabActiva ? "block" : "none");" id="panel-@tab">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+            <!-- EXPORTAR -->
+            <div class="ie-card">
+                <div class="ie-card-header exportar">
+                    <div style="font-size:1.5rem;">📥</div>
+                    <div>
+                        <div class="ie-card-titulo">Exportar @tab</div>
+                        <div class="ie-card-sub">
+                            Descarga todos los registros actuales en Excel
+                        </div>
+                    </div>
+                </div>
+                <div class="ie-card-body">
+                    <p style="font-size:.875rem; color:#64748B; margin:0 0 1.25rem;">
+                        El archivo incluirá todos los campos de @tab.ToLower()
+                        registrados actualmente en el sistema.
+                    </p>
+                    <form asp-action="Exportar" asp-controller="ImportExport" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="entidad" value="@tab" />
+                        <button type="submit" class="btn-exportar">
+                            ⬇️ Descargar Excel
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- IMPORTAR -->
+            <div class="ie-card">
+                <div class="ie-card-header importar">
+                    <div style="font-size:1.5rem;">📤</div>
+                    <div>
+                        <div class="ie-card-titulo">Importar @tab</div>
+                        <div class="ie-card-sub">
+                            Carga registros desde un archivo Excel
+                        </div>
+                    </div>
+                </div>
+                <div class="ie-card-body">
+                    <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:8px;
+                                    padding:.75rem 1rem; font-size:.8125rem; color:#92400E;
+                                    margin-bottom:1.25rem;">
+                        💡 Usa la plantilla para asegurarte del formato correcto.
+                        <a asp-action="Plantilla" asp-controller="ImportExport"
+                           asp-route-entidad="@tab"
+                           style="font-weight:700; color:#D97706; text-decoration:none; margin-left:.3rem;">
+                            Descargar plantilla →
+                        </a>
+                    </div>
+
+                    <form asp-action="Preview" asp-controller="ImportExport"
+                          method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="entidad" value="@tab" />
+
+                        <div class="upload-zone" id="zone-@tab"
+                             ondragover="event.preventDefault(); this.classList.add('drag');"
+                             ondragleave="this.classList.remove('drag');"
+                             ondrop="handleDrop(event, '@tab')">
+                            <div style="font-size:2rem; margin-bottom:.5rem;">📂</div>
+                            <div style="font-weight:600; color:#334155; font-size:.875rem;">
+                                Arrastra tu archivo aquí
+                            </div>
+                            <div style="font-size:.75rem; color:#94A3B8; margin:.25rem 0 .75rem;">
+                                o haz clic para seleccionar
+                            </div>
+                            <label style="display:inline-flex; align-items:center; gap:.4rem;
+                                              padding:.45rem 1rem; background:#EFF6FF; color:#2563EB;
+                                              border:1.5px solid #BFDBFE; border-radius:7px;
+                                              font-size:.8125rem; font-weight:600; cursor:pointer;">
+                                📎 Seleccionar .xlsx
+                                <input type="file" name="archivo" accept=".xlsx"
+                                       style="display:none;"
+                                       onchange="mostrarArchivo(this, '@tab')" required />
+                            </label>
+                            <div id="nombre-@tab"
+                                 style="font-size:.8rem; color:#2563EB; margin-top:.5rem;
+                                            font-weight:500; min-height:1.2rem;"></div>
+                        </div>
+
+                        <button type="submit" class="btn-importar" style="margin-top:1rem;">
+                            👁️ Vista Previa
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+<style>
+    .alert-toast {
+        padding: .75rem 1.1rem;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        margin-bottom: 1.25rem;
+    }
+
+        .alert-toast.success {
+            background: #F0FDF4;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+
+        .alert-toast.error {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+
+    .ie-card {
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .ie-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1.5px solid #E2E8F0;
+    }
+
+        .ie-card-header.exportar {
+            background: linear-gradient(135deg,#F0FDF4,#DCFCE7);
+        }
+
+        .ie-card-header.importar {
+            background: linear-gradient(135deg,#EFF6FF,#DBEAFE);
+        }
+
+    .ie-card-titulo {
+        font-weight: 700;
+        color: #0F172A;
+        font-size: .9375rem;
+    }
+
+    .ie-card-sub {
+        font-size: .75rem;
+        color: #64748B;
+        margin-top: .15rem;
+    }
+
+    .ie-card-body {
+        padding: 1.5rem;
+    }
+
+    .btn-exportar {
+        width: 100%;
+        padding: .7rem;
+        background: #16A34A;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: .9rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter',sans-serif;
+        transition: .15s;
+    }
+
+        .btn-exportar:hover {
+            background: #15803D;
+        }
+
+    .btn-importar {
+        width: 100%;
+        padding: .7rem;
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: .9rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter',sans-serif;
+        transition: .15s;
+    }
+
+        .btn-importar:hover {
+            background: #1D4ED8;
+        }
+
+    .upload-zone {
+        border: 2px dashed #CBD5E1;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: .2s;
+        cursor: pointer;
+        background: #F8FAFC;
+    }
+
+        .upload-zone.drag {
+            border-color: #2563EB;
+            background: #EFF6FF;
+        }
+</style>
+
+<script>
+    function mostrarArchivo(input, tab) {
+        const nombre = input.files[0]?.name ?? '';
+        document.getElementById('nombre-' + tab).textContent = nombre ? '✅ ' + nombre : '';
+    }
+
+    function handleDrop(event, tab) {
+        event.preventDefault();
+        document.getElementById('zone-' + tab).classList.remove('drag');
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            const input = document.querySelector(`#zone-${tab} input[type="file"]`);
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            input.files = dt.files;
+            mostrarArchivo(input, tab);
+        }
+    }
+</script>
