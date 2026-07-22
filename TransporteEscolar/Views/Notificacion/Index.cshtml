@@ -1,0 +1,163 @@
+﻿@model List<TransporteEscolar.Models.Notificacion>
+@{
+    ViewData["Title"] = "Notificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+        <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">
+            🔔 Notificaciones
+        </h2>
+        <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+            @Model.Count notificación(es) — todas marcadas como leídas
+        </p>
+    </div>
+    <a asp-action="Dashboard" asp-controller="Padre" class="btn-back-text">
+        ← Volver al panel
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:14px;
+                    padding:3rem; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:.75rem;">🔔</div>
+        <div style="font-weight:600; color:#0F172A; font-size:1rem;">
+            No tienes notificaciones
+        </div>
+        <div style="color:#94A3B8; font-size:.875rem; margin-top:.35rem;">
+            Te avisaremos aquí cuando haya novedades sobre tus hijos.
+        </div>
+    </div>
+}
+else
+{
+    <!-- Agrupar por fecha -->
+    @foreach (var grupo in Model.GroupBy(n => n.FechaHora.ToLocalTime().Date)
+                                    .OrderByDescending(g => g.Key))
+    {
+        <div style="font-size:.75rem; font-weight:700; color:#94A3B8;
+                            text-transform:uppercase; letter-spacing:.06em;
+                            margin:1.25rem 0 .6rem;">
+            @(grupo.Key == DateTime.Today ? "Hoy" :
+                grupo.Key == DateTime.Today.AddDays(-1) ? "Ayer" :
+                grupo.Key.ToString("dddd, dd 'de' MMMM",
+                new System.Globalization.CultureInfo("es-ES")))
+</div>
+
+        <div style="display:flex; flex-direction:column; gap:.6rem;">
+    @foreach (var n in grupo.OrderByDescending(x => x.FechaHora))
+            {
+                <div class="notif-item @(n.Leida ? "leida" : "no-leida")"
+                     style="border-left:3px solid @(
+                     n.Tipo == "Ausencia" ? "#DC2626" :
+                     n.Tipo == "Incidencia" ? "#D97706" :
+                     n.Tipo == "Jornada" ? "#2563EB" : "#7C3AED");">
+        <div style="display:flex; align-items:flex-start;
+                                justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:flex-start; gap:.85rem; flex:1;">
+                <div style="font-size:1.5rem; flex-shrink:0; margin-top:.1rem;">
+                    @n.Icono
+                </div>
+                <div>
+                    <div style="font-weight:@(n.Leida ? "500" : "700");
+                                            color:#0F172A; font-size:.9375rem;">
+                        @n.Titulo
+                    </div>
+                    <div style="font-size:.875rem; color:#475569; margin-top:.25rem;
+                                            line-height:1.5;">
+                        @n.Mensaje
+                    </div>
+                    @if (n.Alumno != null)
+                                {
+                                    <div style="margin-top:.4rem;">
+                                        <span style="background:#EFF6FF; color:#2563EB; font-size:.7rem;
+                                                                     font-weight:600; padding:.15rem .5rem; border-radius:20px;">
+                                            👶 @n.Alumno.NombreCompleto
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <div style="font-size:.75rem; color:#94A3B8; white-space:nowrap;">
+                                @n.FechaHora.ToLocalTime().ToString("HH:mm")
+                            </div>
+                            <div style="margin-top:.4rem;">
+                                <span class="tipo-badge tipo-@n.Tipo.ToLower()">@n.Tipo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+<style>
+    .btn-back-text {
+        font-size: .875rem;
+        font-weight: 600;
+        color: #64748B;
+        text-decoration: none;
+        transition: .15s;
+    }
+
+        .btn-back-text:hover {
+            color: #2563EB;
+        }
+
+    .notif-item {
+        background: #fff;
+        border-radius: 0 12px 12px 0;
+        padding: 1rem 1.25rem;
+        border-top: 1.5px solid #E2E8F0;
+        border-right: 1.5px solid #E2E8F0;
+        border-bottom: 1.5px solid #E2E8F0;
+        transition: all .18s ease;
+    }
+
+        .notif-item:hover {
+            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+            transform: translateX(2px);
+        }
+
+        .notif-item.no-leida {
+            background: #FAFBFF;
+        }
+
+        .notif-item.leida {
+            opacity: .8;
+        }
+
+    .tipo-badge {
+        font-size: .65rem;
+        font-weight: 700;
+        padding: .15rem .5rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+        .tipo-badge.tipo-ausencia {
+            background: #FEF2F2;
+            color: #991B1B;
+        }
+
+        .tipo-badge.tipo-incidencia {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .tipo-badge.tipo-jornada {
+            background: #EFF6FF;
+            color: #1D4ED8;
+        }
+
+        .tipo-badge.tipo-manual {
+            background: #F5F3FF;
+            color: #5B21B6;
+        }
+</style>

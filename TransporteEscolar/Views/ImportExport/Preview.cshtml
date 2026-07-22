@@ -1,0 +1,156 @@
+﻿@model TransporteEscolar.ViewModels.ImportPreviewViewModel
+@{
+    ViewData["Title"] = "Vista Previa — " + Model.Entidad;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+    <a asp-action="Index" asp-controller="ImportExport"
+       asp-route-tab="@Model.Entidad" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;">
+            <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+        </svg>
+    </a>
+    <div>
+        <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">
+            Vista Previa — @Model.Entidad
+        </h2>
+        <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+            @Model.Filas.Count fila(s) detectada(s) —
+            <span style="color:@(Model.Errores.Any() ? "#DC2626" : "#15803D"); font-weight:600;">
+                @(Model.Errores.Any() ? $"{Model.Errores.Count} error(es)" : "Sin errores")
+            </span>
+        </p>
+    </div>
+</div>
+
+<!-- Errores de validación -->
+@if (Model.Errores.Any())
+{
+    <div style="background:#FEF2F2; border:1.5px solid #FECACA; border-radius:10px;
+                    padding:1rem 1.25rem; margin-bottom:1.25rem;">
+        <div style="font-weight:700; color:#991B1B; margin-bottom:.5rem;">
+            ⚠️ Se encontraron errores:
+        </div>
+        @foreach (var error in Model.Errores)
+        {
+            <div style="font-size:.8125rem; color:#DC2626; padding:.2rem 0;">• @error</div>
+        }
+        <div style="font-size:.8125rem; color:#B91C1C; margin-top:.5rem; font-weight:500;">
+            Las filas con errores serán omitidas durante la importación.
+        </div>
+    </div>
+}
+
+<!-- Tabla preview -->
+<div class="tabla-card" style="margin-bottom:1.5rem;">
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#F8FAFC; border-bottom:1.5px solid #E2E8F0;">
+                    <th style="padding:.65rem 1rem; text-align:center; font-size:.75rem;
+                               font-weight:700; color:#64748B; text-transform:uppercase;
+                               letter-spacing:.05em; white-space:nowrap;">#</th>
+                    @foreach (var col in Model.Columnas)
+                    {
+                        <th style="padding:.65rem 1rem; text-align:left; font-size:.75rem;
+                                       font-weight:700; color:#64748B; text-transform:uppercase;
+                                       letter-spacing:.05em; white-space:nowrap;">@col</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Filas.Count; i++)
+                {
+                    var fila = Model.Filas[i];
+                    var numFila = i + 2;
+                    var tieneError = Model.Errores.Any(e => e.StartsWith($"Fila {numFila}:"));
+
+                    <tr style="border-bottom:1px solid #F1F5F9;
+                                   background:@(tieneError ? "#FFF7F7" : "transparent")">
+                        <td style="padding:.7rem 1rem; text-align:center; font-size:.8rem;
+                                       color:@(tieneError ? "#DC2626" : "#94A3B8"); font-weight:600;">
+                            @(tieneError ? "⚠️" : "✅") @numFila
+                        </td>
+                        @foreach (var celda in fila)
+                        {
+                            <td style="padding:.7rem 1rem; font-size:.8125rem;
+                                               color:@(tieneError ? "#DC2626" : "#334155");">
+                                @(string.IsNullOrWhiteSpace(celda) ? "—" : celda)
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Botones confirmar / cancelar -->
+@if (Model.TotalValidos > 0)
+{
+    <div style="display:flex; gap:.75rem; justify-content:flex-end; align-items:center;">
+        <a asp-action="Index" asp-controller="ImportExport"
+           asp-route-tab="@Model.Entidad"
+           style="padding:.6rem 1.25rem; border:1.5px solid #E2E8F0; border-radius:8px;
+                      color:#64748B; font-size:.875rem; font-weight:500; text-decoration:none;
+                      transition:.15s;"
+           onmouseover="this.style.borderColor='#94A3B8';"
+           onmouseout="this.style.borderColor='#E2E8F0';">
+            Cancelar
+        </a>
+
+        <form asp-action="Confirmar" asp-controller="ImportExport" method="post"
+              style="display:inline;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="entidad" value="@Model.Entidad" />
+            <input type="hidden" name="datosJson" value="@Model.DatosJson" />
+            <button type="submit"
+                    style="padding:.6rem 1.5rem; background:#16A34A; color:#fff; border:none;
+                               border-radius:8px; font-size:.875rem; font-weight:600; cursor:pointer;
+                               font-family:'Inter',sans-serif; transition:.15s;"
+                    onmouseover="this.style.background='#15803D';"
+                    onmouseout="this.style.background='#16A34A';">
+                ✅ Confirmar importación de @Model.TotalValidos registro(s)
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <div style="background:#FEF2F2; border:1.5px solid #FECACA; border-radius:10px;
+                    padding:1.25rem; text-align:center; color:#991B1B; font-weight:600;">
+        No hay registros válidos para importar.
+    </div>
+}
+
+<style>
+    .btn-back {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        color: #64748B;
+        text-decoration: none;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+
+        .btn-back:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+            background: #EFF6FF;
+        }
+
+    .tabla-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1.5px solid #E2E8F0;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+</style>
