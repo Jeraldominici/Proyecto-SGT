@@ -13,6 +13,8 @@
     <Compile Remove="Models\Notificacion.cs" />
     <Compile Remove="Services\NotificacionService.cs" />
     <Compile Remove="ViewModels\ImportExportViewModel.cs" />
+    <Compile Remove="ViewModels\ReporteDatos.cs" />
+    <Compile Remove="ViewModels\ReporteViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +42,8 @@
     <None Include="Models\Notificacion.cs" />
     <None Include="Services\NotificacionService.cs" />
     <None Include="ViewModels\ImportExportViewModel.cs" />
+    <None Include="ViewModels\ReporteDatos.cs" />
+    <None Include="ViewModels\ReporteViewModel.cs" />
   </ItemGroup>
 
 </Project>
