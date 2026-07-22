@@ -1,0 +1,616 @@
+﻿@model TransporteEscolar.ViewModels.ReporteViewModel
+@{
+    ViewData["Title"] = "Reportes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Encabezado -->
+<div style="display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+        <a asp-action="Dashboard" asp-controller="Admin"
+           style="display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1.25rem;
+          font-size:.875rem; font-weight:600; color:#64748B; text-decoration:none;
+          padding:.4rem .85rem; border:1.5px solid #E2E8F0; border-radius:8px;
+          background:#fff; transition:.15s;"
+           onmouseover="this.style.borderColor='#2563EB'; this.style.color='#2563EB';"
+           onmouseout="this.style.borderColor='#E2E8F0'; this.style.color='#64748B';">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                 style="width:15px; height:15px;">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            </svg>
+            Volver al Dashboard
+        </a>
+        <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">Reportes</h2>
+        <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">
+            Período: @Model.FechaDesde.ToString("dd/MM/yyyy") — @Model.FechaHasta.ToString("dd/MM/yyyy")
+        </p>
+    </div>
+    <!-- Botones exportar -->
+    <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+        <form asp-action="ExportarExcel" asp-controller="Admin" method="post" style="margin:0;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="desde" value="@Model.FechaDesde.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="hasta" value="@Model.FechaHasta.ToString("yyyy-MM-dd")" />
+            <button type="submit" class="btn-export excel">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.24a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd" />
+                </svg>
+                Exportar Excel
+            </button>
+        </form>
+        <form asp-action="ExportarPdf" asp-controller="Admin" method="post" style="margin:0;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="desde" value="@Model.FechaDesde.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="hasta" value="@Model.FechaHasta.ToString("yyyy-MM-dd")" />
+            <button type="submit" class="btn-export pdf">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.24a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd" />
+                </svg>
+                Exportar PDF
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Filtro de fechas -->
+<div class="filtros-card" style="margin-bottom:1.5rem;">
+    <form asp-action="Reportes" asp-controller="Admin" method="get">
+        <div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Desde</label>
+                <input type="date" name="desde" class="finput" style="width:auto;"
+                       value="@Model.FechaDesde.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="fgroup" style="margin:0;">
+                <label class="flabel">Hasta</label>
+                <input type="date" name="hasta" class="finput" style="width:auto;"
+                       value="@Model.FechaHasta.ToString("yyyy-MM-dd")" />
+            </div>
+            <button type="submit" class="btn-filtrar">Actualizar Reporte</button>
+        </div>
+    </form>
+</div>
+
+<!-- ── SECCIÓN 1: Resumen general ── -->
+<h3 class="seccion-titulo">📊 Resumen General</h3>
+<div class="grid-stats" style="margin-bottom:2rem;">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#EFF6FF; color:#2563EB;">👥</div>
+        <div class="stat-value">@Model.TotalUsuarios</div>
+        <div class="stat-label">Total Usuarios</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#F0FDF4; color:#15803D;">✅</div>
+        <div class="stat-value">@Model.UsuariosActivos</div>
+        <div class="stat-label">Usuarios Activos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF2F2; color:#DC2626;">🔒</div>
+        <div class="stat-value">@Model.UsuariosBloqueados</div>
+        <div class="stat-label">Usuarios Bloqueados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF3C7; color:#D97706;">🚌</div>
+        <div class="stat-value">@Model.TotalAutobuses</div>
+        <div class="stat-label">Total Autobuses</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#F0FDF4; color:#15803D;">🟢</div>
+        <div class="stat-value">@Model.AutobusesActivos</div>
+        <div class="stat-label">Autobuses Activos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#EFF6FF; color:#2563EB;">📋</div>
+        <div class="stat-value">@Model.TotalAccesos</div>
+        <div class="stat-label">Total Accesos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#F0FDF4; color:#15803D;">✅</div>
+        <div class="stat-value">@Model.AccesosExitosos</div>
+        <div class="stat-label">Accesos Exitosos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF2F2; color:#DC2626;">❌</div>
+        <div class="stat-value">@Model.AccesosFallidos</div>
+        <div class="stat-label">Accesos Fallidos</div>
+    </div>
+</div>
+
+<!-- ── SECCIÓN 2: Actividad por fecha ── -->
+<h3 class="seccion-titulo">📅 Actividad por Fecha</h3>
+<div class="tabla-card" style="margin-bottom:2rem;">
+    @if (!Model.ActividadPorFecha.Any(a => a.Total > 0))
+    {
+        <div class="empty-state">Sin actividad en el período seleccionado.</div>
+    }
+    else
+    {
+        @* Gráfico de barras simple con CSS *@
+        var maxTotal = Model.ActividadPorFecha.Max(a => a.Total);
+        maxTotal = maxTotal == 0 ? 1 : maxTotal;
+
+        <div style="padding:1.25rem; overflow-x:auto;">
+            <div style="display:flex; align-items:flex-end; gap:4px;
+                            min-height:120px; border-bottom:2px solid #E2E8F0;
+                            padding-bottom:8px; min-width:600px;">
+                @foreach (var act in Model.ActividadPorFecha.TakeLast(30))
+                {
+                    var pctExitosos = (int)((act.Exitosos / (double)maxTotal) * 100);
+                    var pctFallidos = (int)((act.Fallidos / (double)maxTotal) * 100);
+                    <div style="flex:1; display:flex; flex-direction:column;
+                                        align-items:center; gap:2px; min-width:14px;"
+                         title="@act.Fecha.ToString("dd/MM") — E:@act.Exitosos F:@act.Fallidos">
+                        @if (act.Fallidos > 0)
+                        {
+                            <div style="width:100%; background:#FEE2E2; border-radius:2px 2px 0 0;
+                                                    height:@(pctFallidos)px; min-height:2px;"></div>
+                        }
+                        @if (act.Exitosos > 0)
+                        {
+                            <div style="width:100%; background:#2563EB; border-radius:2px 2px 0 0;
+                                                    height:@(pctExitosos)px; min-height:2px;"></div>
+                        }
+                        @if (act.Total == 0)
+                        {
+                            <div style="width:100%; background:#F1F5F9; height:4px;"></div>
+                        }
+                    </div>
+                }
+            </div>
+            <div style="display:flex; gap:1.5rem; margin-top:.75rem; font-size:.75rem; color:#64748B;">
+                <span>
+                    <span style="display:inline-block;width:10px;height:10px;
+                                background:#2563EB;border-radius:2px;margin-right:4px;"></span>Exitosos
+                </span>
+                <span>
+                    <span style="display:inline-block;width:10px;height:10px;
+                                background:#FEE2E2;border-radius:2px;margin-right:4px;"></span>Fallidos
+                </span>
+            </div>
+        </div>
+
+        <table class="tabla-usuarios" style="margin-top:0;">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Exitosos</th>
+                    <th>Fallidos</th>
+                    <th>Total</th>
+                    <th>Distribución</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var act in Model.ActividadPorFecha.Where(a => a.Total > 0))
+                {
+                    <tr>
+                        <td style="font-weight:600;">@act.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td><span class="status-badge activo">@act.Exitosos</span></td>
+                        <td><span class="status-badge @(act.Fallidos > 0 ? "bloqueado" : "inactivo")">@act.Fallidos</span></td>
+                        <td style="font-weight:700;">@act.Total</td>
+                        <td style="min-width:120px;">
+                            @if (act.Total > 0)
+                            {
+                                var pct = (int)((act.Exitosos / (double)act.Total) * 100);
+                                <div style="height:8px; background:#FEE2E2; border-radius:99px; overflow:hidden;">
+                                    <div style="height:100%; width:@(pct)%; background:#2563EB; border-radius:99px;"></div>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<!-- ── SECCIÓN 3: Accesos por usuario ── -->
+<h3 class="seccion-titulo">👤 Accesos por Usuario</h3>
+<div class="tabla-card" style="margin-bottom:2rem;">
+    @if (!Model.AccesosPorUsuario.Any())
+    {
+        <div class="empty-state">Sin accesos en el período seleccionado.</div>
+    }
+    else
+    {
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Total Accesos</th>
+                    <th>Exitosos</th>
+                    <th>Fallidos</th>
+                    <th>Tasa Éxito</th>
+                    <th>Último Acceso</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model.AccesosPorUsuario)
+                {
+                    var tasa = a.TotalAccesos > 0
+                    ? (int)((a.Exitosos / (double)a.TotalAccesos) * 100) : 0;
+                    <tr>
+                        <td>
+                            <div style="font-weight:600; color:#0F172A;">@a.NombreUsuario</div>
+                            <div style="font-size:.75rem; color:#94A3B8;">@a.NombreCompleto</div>
+                        </td>
+                        <td><span class="badge-rol @a.Rol.ToLower()">@a.Rol</span></td>
+                        <td style="font-weight:700; font-size:1rem;">@a.TotalAccesos</td>
+                        <td><span class="status-badge activo">@a.Exitosos</span></td>
+                        <td><span class="status-badge @(a.Fallidos > 0 ? "bloqueado" : "inactivo")">@a.Fallidos</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:.5rem;">
+                                <div style="flex:1; height:6px; background:#E2E8F0;
+                                                    border-radius:99px; overflow:hidden; min-width:60px;">
+                                    <div style="height:100%; width:@(tasa)%;
+                                                        background:@(tasa >= 80 ? "#22C55E" : tasa >= 50 ? "#F59E0B" : "#EF4444");
+                                                        border-radius:99px;"></div>
+                                </div>
+                                <span style="font-size:.75rem; font-weight:600; color:#64748B;">@tasa%</span>
+                            </div>
+                        </td>
+                        <td style="font-size:.8125rem; color:#64748B;">
+                            @(a.UltimoAcceso.HasValue
+                                                ? a.UltimoAcceso.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                                : "—")
+                </td>
+            </tr>
+                        }
+            </tbody>
+        </table>
+    }
+</div>
+
+<!-- ── SECCIÓN 4: Intentos fallidos ── -->
+@if (Model.FallidosPorUsuario.Any())
+{
+    <h3 class="seccion-titulo">⚠️ Intentos Fallidos por Usuario</h3>
+    <div class="tabla-card" style="margin-bottom:2rem;">
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Total Fallidos</th>
+                    <th>Estado</th>
+                    <th>Última IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.FallidosPorUsuario)
+                {
+                    <tr class="@(f.Bloqueado ? "row-alerta" : "")">
+                        <td style="font-weight:600;">@f.NombreUsuario</td>
+                        <td>@f.NombreCompleto</td>
+                        <td>
+                            <span style="font-size:1.1rem; font-weight:700;
+                                                 color:@(f.TotalFallidos >= 3 ? "#DC2626" : "#D97706");">
+                                @f.TotalFallidos
+                            </span>
+                        </td>
+                        <td>
+                            @if (f.Bloqueado)
+                            {
+                                <span class="status-badge bloqueado">🔒 Bloqueado</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge inactivo">⚠️ Con fallos</span>
+                            }
+                        </td>
+                        <td>
+                            <code style="font-size:.75rem; background:#F1F5F9;
+                                                 padding:.15rem .4rem; border-radius:4px; color:#475569;">
+                                @(f.UltimaIP ?? "—")
+                            </code>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- ── SECCIÓN 5: Usuarios bloqueados ── -->
+@if (Model.UsuariosBloqueadosList.Any())
+{
+    <h3 class="seccion-titulo">🔒 Usuarios Bloqueados</h3>
+    <div class="tabla-card" style="margin-bottom:2rem;">
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Rol</th>
+                    <th>Email</th>
+                    <th>Intentos Fallidos</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.UsuariosBloqueadosList)
+                {
+                    <tr>
+                        <td style="font-weight:600; color:#DC2626;">@u.NombreUsuario</td>
+                        <td>@u.NombreCompleto</td>
+                        <td><span class="badge-rol @u.Rol.Nombre.ToLower()">@u.Rol.Nombre</span></td>
+                        <td style="color:#64748B;">@(u.Email ?? "—")</td>
+                        <td style="font-weight:700; color:#DC2626;">@u.IntentosFallidos</td>
+                        <td>
+                            <form asp-action="ToggleBloqueo" asp-controller="Admin"
+                                  asp-route-id="@u.UsuarioId" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-desbloquear">
+                                    🔓 Desbloquear
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<style>
+    .seccion-titulo {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0F172A;
+        margin: 0 0 .85rem;
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        transition: all .18s ease;
+    }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 14px rgba(0,0,0,.07);
+            transform: translateY(-2px);
+        }
+
+    .stat-icon {
+        font-size: 1.25rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+
+    .stat-label {
+        font-size: .75rem;
+        color: #64748B;
+        font-weight: 500;
+    }
+
+    .filtros-card {
+        background: #fff;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 1.25rem;
+    }
+
+    .fgroup {
+        margin-bottom: 0;
+    }
+
+    .flabel {
+        display: block;
+        font-size: .75rem;
+        font-weight: 700;
+        color: #64748B;
+        margin-bottom: .3rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .finput {
+        padding: .6rem .85rem;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-family: 'Inter', sans-serif;
+        color: #0F172A;
+        outline: none;
+        transition: border-color .15s;
+    }
+
+        .finput:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+
+    .btn-filtrar {
+        padding: .6rem 1.1rem;
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        transition: .15s;
+    }
+
+        .btn-filtrar:hover {
+            background: #1D4ED8;
+        }
+
+    .btn-export {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: .8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        transition: .15s;
+    }
+
+        .btn-export.excel {
+            background: #16A34A;
+            color: #fff;
+        }
+
+            .btn-export.excel:hover {
+                background: #15803D;
+            }
+
+        .btn-export.pdf {
+            background: #DC2626;
+            color: #fff;
+        }
+
+            .btn-export.pdf:hover {
+                background: #B91C1C;
+            }
+
+    .tabla-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1.5px solid #E2E8F0;
+        overflow-x: auto;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .tabla-usuarios {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .tabla-usuarios thead tr {
+            background: #F8FAFC;
+            border-bottom: 1.5px solid #E2E8F0;
+        }
+
+        .tabla-usuarios th {
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            white-space: nowrap;
+        }
+
+        .tabla-usuarios td {
+            padding: .8rem 1rem;
+            font-size: .875rem;
+            color: #334155;
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        .tabla-usuarios tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        .tabla-usuarios tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .row-alerta {
+        background: #FFF7ED !important;
+    }
+
+    .badge-rol {
+        font-size: .6875rem;
+        font-weight: 700;
+        padding: .2rem .6rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+        .badge-rol.admin {
+            background: #EFF6FF;
+            color: #1D4ED8;
+        }
+
+        .badge-rol.azafata {
+            background: #F0F9FF;
+            color: #0369A1;
+        }
+
+        .badge-rol.padre {
+            background: #F0FDF4;
+            color: #15803D;
+        }
+
+    .status-badge {
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .2rem .65rem;
+        border-radius: 20px;
+    }
+
+        .status-badge.activo {
+            background: #F0FDF4;
+            color: #15803D;
+        }
+
+        .status-badge.inactivo {
+            background: #F8FAFC;
+            color: #64748B;
+        }
+
+        .status-badge.bloqueado {
+            background: #FEF2F2;
+            color: #991B1B;
+        }
+
+    .btn-desbloquear {
+        padding: .35rem .85rem;
+        background: #F0FDF4;
+        color: #15803D;
+        border: 1.5px solid #BBF7D0;
+        border-radius: 7px;
+        font-size: .8rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        transition: .15s;
+    }
+
+        .btn-desbloquear:hover {
+            background: #15803D;
+            color: #fff;
+        }
+
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        color: #94A3B8;
+        font-size: .875rem;
+    }
+</style>

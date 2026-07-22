@@ -11,6 +11,8 @@
     <Compile Remove="Controllers\ImportExportController.cs" />
     <Compile Remove="Models\Autobus.cs" />
     <Compile Remove="ViewModels\ImportExportViewModel.cs" />
+    <Compile Remove="ViewModels\ReporteDatos.cs" />
+    <Compile Remove="ViewModels\ReporteViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +38,8 @@
     <None Include="Controllers\ImportExportController.cs" />
     <None Include="Models\Autobus.cs" />
     <None Include="ViewModels\ImportExportViewModel.cs" />
+    <None Include="ViewModels\ReporteDatos.cs" />
+    <None Include="ViewModels\ReporteViewModel.cs" />
   </ItemGroup>
 
 </Project>
