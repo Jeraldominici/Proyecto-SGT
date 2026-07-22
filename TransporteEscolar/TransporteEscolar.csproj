@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\AdminController.cs" />
+    <Compile Remove="Models\PadreAlumno.cs" />
+    <Compile Remove="ViewModels\UsuarioFormViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.7.12" />
@@ -22,6 +28,12 @@
   <ItemGroup>
     <Folder Include="Helpers\Interfaces\" />
     <Folder Include="wwwroot\images\usuarios\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Controllers\AdminController.cs" />
+    <None Include="Models\PadreAlumno.cs" />
+    <None Include="ViewModels\UsuarioFormViewModel.cs" />
   </ItemGroup>
 
 </Project>

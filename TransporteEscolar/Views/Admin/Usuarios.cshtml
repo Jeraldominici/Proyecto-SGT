@@ -1,0 +1,407 @@
+﻿@model List<TransporteEscolar.Models.Usuario>
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+        <a asp-action="Dashboard" asp-controller="Admin"
+           style="display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1.25rem;
+          font-size:.875rem; font-weight:600; color:#64748B; text-decoration:none;
+          padding:.4rem .85rem; border:1.5px solid #E2E8F0; border-radius:8px;
+          background:#fff; transition:.15s;"
+           onmouseover="this.style.borderColor='#2563EB'; this.style.color='#2563EB';"
+           onmouseout="this.style.borderColor='#E2E8F0'; this.style.color='#64748B';">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                 style="width:15px; height:15px;">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+            </svg>
+            Volver al Dashboard
+        </a>
+        <h2 style="font-size:1.375rem; font-weight:700; color:#0F172A; margin:0;">Gestión de Usuarios</h2>
+        <p style="color:#64748B; font-size:.875rem; margin-top:.2rem;">@Model.Count usuario(s) registrado(s)</p>
+    </div>
+    <a asp-action="CrearUsuario" class="btn-primary-action">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;">
+            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        </svg>
+        Nuevo Usuario
+    </a>
+    <!-- BUSCADOR — cambia: ID_INPUT, ID_TABLA, "texto del placeholder" -->
+    <div style="position:relative; max-width:320px; margin-bottom:1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+             style="position:absolute; left:.75rem; top:50%; transform:translateY(-50%);
+                width:16px; height:16px; color:#94A3B8; pointer-events:none;">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+        </svg>
+        <input type="text" id="buscarUsuarios" placeholder="Buscar usuario..."
+               style="width:100%; padding:.6rem .9rem .6rem 2.25rem; border:1.5px solid #E2E8F0;
+                  border-radius:8px; font-size:.875rem; font-family:'Inter',sans-serif;
+                  color:#0F172A; outline:none; transition:.15s; box-sizing:border-box;"
+               onfocus="this.style.borderColor='#2563EB'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,.1)';"
+               onblur="this.style.borderColor='#E2E8F0'; this.style.boxShadow='none';" />
+    </div>
+</div>
+
+@* Mensajes de éxito / error *@
+@if (TempData["Exito"] != null)
+{
+    <div class="alert-toast success">✅ @TempData["Exito"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert-toast error">❌ @TempData["Error"]</div>
+}
+
+<div class="tabla-card">
+    <table id="tablaUsuarios" class="tabla-usuarios">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre Completo</th>
+                <th>Rol</th>
+                <th>Autobús</th>
+                <th>Estado</th>
+                <th>Último Acceso</th>
+                <th style="text-align:center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr class="@(u.Bloqueado ? "row-bloqueado" : "")">
+                    <td>
+                        <div class="user-cell">
+                            <div class="mini-avatar @(u.Rol?.Nombre ?? "Sin rol").ToLower())">
+                                @u.NombreCompleto.Split(' ').FirstOrDefault()?[0]@u.NombreCompleto.Split(' ').Skip(1).FirstOrDefault()?[0]
+                            </div>
+                            <div>
+                                <div style="font-weight:600; color:#0F172A;">@u.NombreUsuario</div>
+                                <div style="font-size:.75rem; color:#94A3B8;">@(u.Email ?? "—")</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@u.NombreCompleto</td>
+                    <td>
+                        <span class="badge-rol @(u.Rol?.Nombre ?? "Sin rol").ToLower())">@(u.Rol?.Nombre ?? "Sin rol")</span>
+                    </td>
+                    <td>@(u.Autobus?.Ficha ?? "—")</td>
+                    <td>
+                        @if (u.Bloqueado)
+                        {
+                            <span class="status-badge bloqueado">🔒 Bloqueado</span>
+                        }
+                        else if (u.Activo)
+                        {
+                            <span class="status-badge activo">● Activo</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge inactivo">● Inactivo</span>
+                        }
+                </td>
+                <td style="color:#64748B; font-size:.8125rem;">
+                    @(u.UltimoAcceso.HasValue
+                                        ? u.UltimoAcceso.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                        : "Nunca")
+                </td>
+                <td>
+                    <div class="acciones-cell">
+                        <a asp-action="EditarUsuario" asp-route-id="@u.UsuarioId"
+                           class="btn-accion editar" title="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
+                                <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
+                            </svg>
+                        </a>
+                        @if (u.Rol != null && u.Rol.Nombre == "Padre")
+                            {
+                                <a asp-action="HijosPadre" asp-controller="Admin"
+                                   asp-route-id="@u.UsuarioId"
+                                   class="btn-accion" title="Gestionar hijos"
+                                   style="background:#F0FDF4; color:#15803D; text-decoration:none;">
+                                    👶
+                                </a>
+                            }
+
+                            <form asp-action="ToggleBloqueo" asp-route-id="@u.UsuarioId"
+                                  method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="btn-accion @(u.Bloqueado ? "desbloquear" : "bloquear")"
+                                        title="@(u.Bloqueado ? "Desbloquear" : "Bloquear")">
+                                    @if (u.Bloqueado)
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M14.5 1A4.5 4.5 0 0010 5.5V9H3a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-1.5V5.5a3 3 0 116 0v2.75a.75.75 0 001.5 0V5.5A4.5 4.5 0 0014.5 1z" clip-rule="evenodd" />
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                                        </svg>
+                                    }
+                                </button>
+                            </form>
+
+                            <form asp-action="EliminarUsuario" asp-route-id="@u.UsuarioId"
+                                  method="post" style="display:inline;"
+                                  onsubmit="return confirm('¿Eliminar al usuario @u.NombreUsuario? Esta acción no se puede deshacer.');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-accion eliminar" title="Eliminar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+<script>
+    document.getElementById('buscarUsuarios').addEventListener('input', function () {
+        const texto = this.value.toLowerCase().trim();
+        document.querySelectorAll('#tablaUsuarios tbody tr').forEach(function (fila) {
+            fila.style.display = fila.textContent.toLowerCase().includes(texto) ? '' : 'none';
+        });
+    });
+</script>
+
+<style>
+    .btn-primary-action {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .55rem 1.1rem;
+        background: #2563EB;
+        color: #fff;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .18s ease;
+    }
+
+        .btn-primary-action:hover {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+        }
+
+    .alert-toast {
+        padding: .75rem 1.1rem;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        margin-bottom: 1.25rem;
+    }
+
+        .alert-toast.success {
+            background: #F0FDF4;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+
+        .alert-toast.error {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+
+    .tabla-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1.5px solid #E2E8F0;
+        overflow-x: auto;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .tabla-usuarios {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .tabla-usuarios thead tr {
+            background: #F8FAFC;
+            border-bottom: 1.5px solid #E2E8F0;
+        }
+
+        .tabla-usuarios th {
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            white-space: nowrap;
+        }
+
+        .tabla-usuarios td {
+            padding: .85rem 1rem;
+            font-size: .875rem;
+            color: #334155;
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        .tabla-usuarios tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        .tabla-usuarios tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .row-bloqueado {
+        opacity: .65;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+    }
+
+    .mini-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .75rem;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+        .mini-avatar.admin {
+            background: linear-gradient(135deg,#1D4ED8,#4F46E5);
+        }
+
+        .mini-avatar.azafata {
+            background: linear-gradient(135deg,#0369A1,#0891B2);
+        }
+
+        .mini-avatar.padre {
+            background: linear-gradient(135deg,#15803D,#16A34A);
+        }
+
+    .badge-rol {
+        font-size: .6875rem;
+        font-weight: 700;
+        padding: .2rem .6rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+        .badge-rol.admin {
+            background: #EFF6FF;
+            color: #1D4ED8;
+        }
+
+        .badge-rol.azafata {
+            background: #F0F9FF;
+            color: #0369A1;
+        }
+
+        .badge-rol.padre {
+            background: #F0FDF4;
+            color: #15803D;
+        }
+
+    .status-badge {
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .2rem .65rem;
+        border-radius: 20px;
+    }
+
+        .status-badge.activo {
+            background: #F0FDF4;
+            color: #15803D;
+        }
+
+        .status-badge.inactivo {
+            background: #F8FAFC;
+            color: #64748B;
+        }
+
+        .status-badge.bloqueado {
+            background: #FEF2F2;
+            color: #991B1B;
+        }
+
+    .acciones-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+    }
+
+    .btn-accion {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all .15s ease;
+        text-decoration: none;
+    }
+
+        .btn-accion svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .btn-accion.editar {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+            .btn-accion.editar:hover {
+                background: #2563EB;
+                color: #fff;
+            }
+
+        .btn-accion.bloquear {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+            .btn-accion.bloquear:hover {
+                background: #D97706;
+                color: #fff;
+            }
+
+        .btn-accion.desbloquear {
+            background: #F0FDF4;
+            color: #15803D;
+        }
+
+            .btn-accion.desbloquear:hover {
+                background: #15803D;
+                color: #fff;
+            }
+
+        .btn-accion.eliminar {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+            .btn-accion.eliminar:hover {
+                background: #DC2626;
+                color: #fff;
+            }
+</style>
