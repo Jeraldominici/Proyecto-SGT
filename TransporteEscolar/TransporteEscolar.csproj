@@ -7,16 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
-    <Compile Remove="Controllers\AdminController.cs" />
-    <Compile Remove="Models\PadreAlumno.cs" />
-    <Compile Remove="ViewModels\UsuarioFormViewModel.cs" />
-=======
-    <Compile Remove="Helpers\**" />
-    <Content Remove="Helpers\**" />
-    <EmbeddedResource Remove="Helpers\**" />
-    <None Remove="Helpers\**" />
->>>>>>> ae5bb0c15e5d1b8439b8a36feaade39795471cd6
+    <Compile Remove="Controllers\AutobusController.cs" />
+    <Compile Remove="Controllers\ImportExportController.cs" />
+    <Compile Remove="Models\Autobus.cs" />
+    <Compile Remove="ViewModels\ImportExportViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,13 +27,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Helpers\Interfaces\" />
     <Folder Include="wwwroot\images\usuarios\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Controllers\AdminController.cs" />
-    <None Include="Models\PadreAlumno.cs" />
-    <None Include="ViewModels\UsuarioFormViewModel.cs" />
+    <None Include="Controllers\AutobusController.cs" />
+    <None Include="Controllers\ImportExportController.cs" />
+    <None Include="Models\Autobus.cs" />
+    <None Include="ViewModels\ImportExportViewModel.cs" />
   </ItemGroup>
 
 </Project>
